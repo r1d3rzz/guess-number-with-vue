@@ -3,17 +3,24 @@
     <div class="row">
       <div class="col-md">
         <h1>Guess A Number</h1>
+        <h3 class="mb-5">(Between 1 to 20)</h3>
         <div>
           <div class="guessNumber">
-            <span>?</span>
+            <span>{{ secretNumber }}</span>
+          </div>
+
+          <div class="alert alert-warning fs-3" v-if="endGameMessage">
+            {{ endGameMessage }}
           </div>
           <hr />
           <div class="row mt-5">
             <div class="col-md-6">
               <div class="card bg-secondary w-50 mx-auto mb-4">
-                <div class="card-header bg-primary" v-if="is_start">
-                  <div>
-                    <span>Hint : Larger Than A Number</span>
+                <div v-if="hint_message">
+                  <div class="card-header bg-primary" v-if="is_start">
+                    <div>
+                      <span>Hint : {{ hint_message }}</span>
+                    </div>
                   </div>
                 </div>
                 <div class="card-body">
@@ -22,6 +29,7 @@
                     placeholder="Enter Number"
                     class="form-control"
                     v-if="is_start"
+                    v-model="player_number"
                   />
                   <button
                     class="btn btn-dark mt-3"
@@ -30,9 +38,20 @@
                   >
                     Start Game
                   </button>
-                  <button class="btn btn-dark mt-3" v-if="is_start">
-                    Guess Number
-                  </button>
+                  <div v-if="!is_win">
+                    <button
+                      class="btn btn-dark mt-3"
+                      v-if="is_start"
+                      @click="guessNumberBtn"
+                    >
+                      Guess Number
+                    </button>
+                  </div>
+                  <div v-else>
+                    <button class="btn btn-warning mt-3" @click="restartBtn">
+                      Restart
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -58,11 +77,44 @@ export default {
   data() {
     return {
       is_start: false,
+      is_win: false,
+      guess_number: 0,
+      endGameMessage: "",
+      player_number: "",
+      hint_message: "",
+      secretNumber: "?",
     };
   },
   methods: {
     startGame() {
+      this.hint_message = "";
       this.is_start = true;
+      this.secretNumber = "?";
+      this.guess_number = Math.floor(Math.random() * 20 + 1);
+      console.log(this.guess_number);
+    },
+    guessNumberBtn() {
+      if (this.player_number == "") {
+        return (this.hint_message = "Please Enter A Number");
+      }
+
+      if (this.player_number > this.guess_number) {
+        this.hint_message = "Larger than a number";
+      } else if (this.player_number < this.guess_number) {
+        this.hint_message = "Smaller than a number";
+      } else if (this.player_number === this.guess_number) {
+        this.secretNumber = this.guess_number;
+        this.endGameMessage = "Winner";
+        this.is_win = true;
+        this.hint_message = "";
+      }
+    },
+    restartBtn() {
+      this.is_win = false;
+      this.secretNumber = "?";
+      this.player_number = "";
+      this.endGameMessage = "";
+      this.is_start = false;
     },
   },
 };
