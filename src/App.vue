@@ -128,6 +128,7 @@ export default {
       }
 
       if (this.live == 0) {
+        this.secretNumber = this.guess_number;
         this.endGameMessage = "😣 Game Over";
         this.is_guest = false;
         this.is_restart = true;
