@@ -41,13 +41,13 @@
                   <div v-if="!is_win">
                     <button
                       class="btn btn-dark mt-3"
-                      v-if="is_start"
+                      v-if="is_guest"
                       @click="guessNumberBtn"
                     >
                       Guess Number
                     </button>
                   </div>
-                  <div v-else>
+                  <div v-if="is_restart">
                     <button class="btn btn-warning mt-3" @click="restartBtn">
                       Restart
                     </button>
@@ -59,9 +59,15 @@
               <div class="card text-start w-50 mx-auto">
                 <div class="card-header bg-secondary">Score Box</div>
                 <div class="card-body text-dark">
-                  <h5>Live : <b>10</b></h5>
-                  <h5>Hight Score : 20</h5>
-                  <h5>Your Score : 15</h5>
+                  <h5>
+                    🧡Live : <b>{{ live }}</b>
+                  </h5>
+                  <h5 v-if="hightScore">
+                    🔥Hight Score : <b>{{ hightScore }}</b>
+                  </h5>
+                  <h5>
+                    ☞Your Score : <b>{{ currentScore }}</b>
+                  </h5>
                 </div>
               </div>
             </div>
@@ -78,7 +84,12 @@ export default {
     return {
       is_start: false,
       is_win: false,
+      is_restart: false,
+      is_guest: false,
       guess_number: 0,
+      live: 10,
+      hightScore: null,
+      currentScore: 0,
       endGameMessage: "",
       player_number: "",
       hint_message: "",
@@ -89,9 +100,10 @@ export default {
     startGame() {
       this.hint_message = "";
       this.is_start = true;
+      this.is_guest = true;
       this.secretNumber = "?";
       this.guess_number = Math.floor(Math.random() * 20 + 1);
-      console.log(this.guess_number);
+      // console.log(this.guess_number);
     },
     guessNumberBtn() {
       if (this.player_number == "") {
@@ -99,22 +111,40 @@ export default {
       }
 
       if (this.player_number > this.guess_number) {
+        this.live--;
         this.hint_message = "Larger than a number";
       } else if (this.player_number < this.guess_number) {
+        this.live--;
         this.hint_message = "Smaller than a number";
       } else if (this.player_number === this.guess_number) {
         this.secretNumber = this.guess_number;
-        this.endGameMessage = "Winner";
+        this.endGameMessage = "🎉 Congratulations Winner 🎉";
+        this.currentScore = this.live;
+        this.currentScore > this.hightScore
+          ? (this.hightScore = this.currentScore)
+          : null;
         this.is_win = true;
+        this.is_restart = true;
+      }
+
+      if (this.live == 0) {
+        this.endGameMessage = "😣 Game Over";
+        this.is_guest = false;
+        this.is_restart = true;
         this.hint_message = "";
+        return;
       }
     },
     restartBtn() {
       this.is_win = false;
+      this.is_start = false;
+      this.is_guest = false;
+      this.is_restart = false;
+      this.currentScore = 0;
+      this.live = 10;
       this.secretNumber = "?";
       this.player_number = "";
       this.endGameMessage = "";
-      this.is_start = false;
     },
   },
 };
